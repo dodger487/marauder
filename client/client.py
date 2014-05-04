@@ -35,6 +35,9 @@ p = argparse.ArgumentParser(description=
 p.add_argument('--interval', dest='interval',
                     default=DEFAULT_INTERVAL,
                     help='time (in seconds) between submissions')
+p.add_argument('--outfile', dest='outfile',
+                    default=None,
+                    help='outfile to write to instead of submitting to API')
 
 
 def submit_batch(batch):
@@ -59,7 +62,7 @@ def submit_batch(batch):
     print "Submitted"
 
 
-def main(interval):
+def main(interval, outfile=None):
     """Collect requests by sniffing, submit in batches"""
     CMD = ("tshark -i en0 -I -T fields -e radiotap.dbm_antsignal -e wlan.ta " +
        "-e wlan.fc.type -e wlan.fc.subtype -e frame.time -e wlan.fcs"
@@ -69,9 +72,15 @@ def main(interval):
 
     last_time = datetime.datetime.now()
     batch = []
+    if outfile is not None:
+        outf = open(outfile, "w")
 
     for i, l in enumerate(pipe):
         if not LINE_REGEX.search(l):
+            continue
+
+        if outfile is not None:
+            outf.write(l)
             continue
 
         batch.append(l)
@@ -85,4 +94,4 @@ def main(interval):
 
 if __name__ == "__main__":
     args = p.parse_args()
-    main(interval=args.interval)
+    main(interval=args.interval, outfile=args.outfile)
