@@ -1,0 +1,4 @@
+Experiment 1 (exp1)
+At 10:45 ran on Dave and Dan's computers for 30 seconds
+
+tshark -i en0 -I -T fields -e radiotap.dbm_antsignal -e wlan.ta -e wlan.fc.type -e wlan.fc.subtype | grep : > runs/exp1_dave.txt
