@@ -2,3 +2,8 @@ Experiment 1 (exp1)
 At 10:45 ran on Dave and Dan's computers for 30 seconds
 
 tshark -i en0 -I -T fields -e radiotap.dbm_antsignal -e wlan.ta -e wlan.fc.type -e wlan.fc.subtype | grep : > runs/exp1_dave.txt
+
+Experiment 2 (exp2)
+At 11:48 ran on Dave and Dan's computers for 1 minute
+
+tshark -i en0 -I -T fields -e radiotap.dbm_antsignal -e wlan.ta -e wlan.fc.type -e wlan.fc.subtype -e frame.time -e wlan.fcs | grep :..:..: > runs/exp2_dave.txt
