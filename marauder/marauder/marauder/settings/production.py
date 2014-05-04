@@ -22,6 +22,8 @@ def get_env_setting(setting):
 
 INSTALLED_APPS += ('gunicorn',)
 
+ROOT_URLCONF = '%s.%s.urls' % (SITE_NAME, SITE_NAME)
+
 ########## EMAIL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
