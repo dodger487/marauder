@@ -35,6 +35,9 @@ p = argparse.ArgumentParser(description=
 p.add_argument('--interval', dest='interval',
                     default=DEFAULT_INTERVAL,
                     help='time (in seconds) between submissions')
+p.add_argument('--infile', dest='infile',
+                    default=None,
+                    help='infile to send to server instead of capturing packets')
 p.add_argument('--outfile', dest='outfile',
                     default=None,
                     help='outfile to write to instead of submitting to API')
@@ -48,13 +51,13 @@ def submit_batch(batch):
         spl = l[:-1].split("\t")
         strength, addr, type, subtype, dt, fcs = spl
 
-        dt = datetime.datetime.strptime(dt, "%B %d, %Y %H:%M:%S.%f000")
-        dt = (dt - datetime.datetime.utcfromtimestamp(0)).total_seconds()
+        #dt = datetime.datetime.strptime(dt, "%B %d, %Y %H:%M:%S.%f000")
+        #dt = (dt - datetime.datetime.utcfromtimestamp(0)).total_seconds()
         # fixed packet structure: designed to save keys
-        packets.append([addr, strength, dt, type, subtype])
+        packets.append([addr, strength])
 
     #
-    values = {"device": MARAUDER_ID, "packets": json.dumps(packets)}
+    values = {"listening_device": MARAUDER_ID, "packets": json.dumps(packets)}
 
     r = requests.post(QUERY_URL, data=values)
     print r.content
@@ -62,8 +65,32 @@ def submit_batch(batch):
     print "Submitted"
 
 
-def main(interval, outfile=None):
+def process_file(interval, infile):
+    with open(infile, "rb") as packetfile:
+        batch = []
+        start_time = None
+        for l in packetfile:
+            batch.append(l)
+            spl = l[:-1].split("\t")
+            strength, addr, type, subtype, dt, fcs = spl
+            dt = datetime.datetime.strptime(dt, "%B %d, %Y %H:%M:%S.%f000")
+            dt = (dt - datetime.datetime.utcfromtimestamp(0)).total_seconds()
+            if not start_time:
+                start_time = dt
+            else:
+                if dt - start_time > interval:
+                    start_time = None
+                    submit_batch(batch)
+                    batch = []
+        
+
+def main(interval, infile=None, outfile=None):
     """Collect requests by sniffing, submit in batches"""
+        
+    if infile:
+        process_file(interval, infile)
+        return
+    
     CMD = ("tshark -i en0 -I -T fields -e radiotap.dbm_antsignal -e wlan.ta " +
        "-e wlan.fc.type -e wlan.fc.subtype -e frame.time -e wlan.fcs"
             ).split(" ")
@@ -94,4 +121,4 @@ def main(interval, outfile=None):
 
 if __name__ == "__main__":
     args = p.parse_args()
-    main(interval=args.interval, outfile=args.outfile)
+    main(interval=args.interval, infile=args.infile, outfile=args.outfile)
