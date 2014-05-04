@@ -1,0 +1,6 @@
+"apple","Apple"
+"intel","Intel"
+"lg electronics","LG"
+"samsung","Samsung"
+"nokia","Nokia"
+"asus","Asus"

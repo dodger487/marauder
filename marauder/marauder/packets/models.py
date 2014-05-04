@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 MAX_NAME_LENGTH = 32
 MAX_ADDR_LENGTH = 12
 
-
 class Site(models.Model):
     name = models.CharField(max_length=MAX_NAME_LENGTH)
     owner = models.ForeignKey(User)
@@ -29,7 +28,7 @@ class Listener(models.Model):
 
 class Address(models.Model):
     address = models.CharField(max_length=12)
-    name = models.CharField(null=True)
+    name = models.CharField(null=True, max_length=MAX_NAME_LENGTH)
 
 
 class Packet(models.Model):
