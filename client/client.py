@@ -12,7 +12,8 @@ import json
 import urllib2
 import argparse
 
-QUERY_URL = "http://marauderio.herokuapp.com/packets/submit_packets"
+QUERY_URL = "http://localhost:8000/packets/submit_packets"
+#QUERY_URL = "http://marauderio.herokuapp.com/packets/submit_packets"
 DEFAULT_INTERVAL = 2
 
 LINE_REGEX = re.compile(":..:..:")
@@ -53,7 +54,7 @@ def submit_batch(batch):
     values = {"device": MARAUDER_ID, "packets": json.dumps(packets)}
 
     r = requests.post(QUERY_URL, data=values)
-    print r.read()
+    print r.content
     
     print "Submitted"
 
